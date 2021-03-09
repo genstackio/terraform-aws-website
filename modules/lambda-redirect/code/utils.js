@@ -14,8 +14,8 @@ const buildDefaultResponse = () => ({
     body: 'Not Found',
 });
 
-const isHostMatching = (a, b) => a === b;
-const isUriMatching = (a, b) => a === b;
+const isHostMatching = (a, b) => !a ? false : (('string' === typeof a) ? (a === b) : !!b.match(a));
+const isUriMatching = (a, b) => !a ? false : (('string' === typeof a) ? (a === b) : !!b.match(a));
 
 const isMatchingRule = (rule, context) => {
     let r = undefined;
