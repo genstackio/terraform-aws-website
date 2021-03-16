@@ -37,7 +37,7 @@ resource "aws_cloudfront_distribution" "cdn" {
   aliases = [local.dns_0]
 
   default_cache_behavior {
-    allowed_methods  = ["GET", "HEAD", "OPTIONS", "POST", "PUT", "PATCH"]
+    allowed_methods  = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = "origin-external"
 
@@ -122,7 +122,7 @@ resource "aws_cloudfront_distribution" "cdn_redirect_apex" {
   aliases = [local.dns_1]
 
   default_cache_behavior {
-    allowed_methods  = ["GET", "HEAD", "OPTIONS", "POST", "PUT", "PATCH"]
+    allowed_methods  = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = "origin-s3"
 
