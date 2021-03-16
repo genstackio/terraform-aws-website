@@ -17,8 +17,8 @@ resource "aws_cloudfront_distribution" "cdn" {
     dynamic "custom_header" {
       for_each = local.custom_headers
       content {
-        name = each.key
-        value = each.value
+        name = custom_header.key
+        value = custom_header.value
       }
     }
     custom_origin_config {
