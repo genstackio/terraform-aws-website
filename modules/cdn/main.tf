@@ -32,7 +32,7 @@ resource "aws_cloudfront_distribution" "cdn" {
   enabled             = true
   is_ipv6_enabled     = true
   comment             = "Website ${var.name} Distribution"
-  default_root_object = "index.html"
+  default_root_object = var.default_root
 
   aliases = [local.dns_0]
 
@@ -118,7 +118,6 @@ resource "aws_cloudfront_distribution" "cdn_redirect_apex" {
   enabled             = true
   is_ipv6_enabled     = true
   comment             = "Website ${var.name} Distribution"
-  default_root_object = "index.html"
 
   aliases = [local.dns_1]
 

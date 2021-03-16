@@ -22,6 +22,10 @@ variable "forwarded_headers" {
   type    = list(string)
   default = ["*"]
 }
+variable "default_root" {
+  type    = string
+  default = null
+}
 variable "index_document" {
   type    = string
   default = "index.html"
