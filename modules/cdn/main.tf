@@ -14,6 +14,13 @@ resource "aws_cloudfront_distribution" "cdn" {
   origin {
     domain_name         = var.origin
     origin_id           = "origin-external"
+    dynamic "custom_header" {
+      for_each = local.custom_headers
+      content {
+        name = lookup(each, "key", null)
+        value = lookup(each, "value", null)
+      }
+    }
     custom_origin_config {
       http_port              = "80"
       https_port             = "443"

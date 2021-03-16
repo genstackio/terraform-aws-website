@@ -10,6 +10,14 @@ variable "zone" {
 variable "dns" {
   type = string
 }
+variable "headers" {
+  type    = map(string)
+  default = {}
+}
+variable "keep_host" {
+  type    = map(string)
+  default = true
+}
 variable "index_document" {
   type    = string
   default = "index.html"
