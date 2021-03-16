@@ -18,6 +18,10 @@ variable "keep_host" {
   type    = bool
   default = true
 }
+variable "forwarded_headers" {
+  type    = list(string)
+  default = ["*"]
+}
 variable "index_document" {
   type    = string
   default = "index.html"

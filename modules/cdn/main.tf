@@ -43,6 +43,7 @@ resource "aws_cloudfront_distribution" "cdn" {
 
     forwarded_values {
       query_string = var.forward_query_string
+      headers      = var.forwarded_headers
       cookies {
         forward = "all"
       }
@@ -128,6 +129,7 @@ resource "aws_cloudfront_distribution" "cdn_redirect_apex" {
 
     forwarded_values {
       query_string = var.forward_query_string
+      headers      = var.forwarded_headers
       cookies {
         forward = "all"
       }
