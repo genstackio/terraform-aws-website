@@ -15,7 +15,7 @@ variable "headers" {
   default = {}
 }
 variable "keep_host" {
-  type    = map(string)
+  type    = bool
   default = true
 }
 variable "index_document" {
