@@ -32,6 +32,7 @@ const isMatchingRule = (rule, context) => {
 
 const getHostFromRequest = request => (((request.headers || [])['host'] || [])[0] || {}).value;
 const getCountryFromRequest = request => (((request.headers || [])['cloudfront-viewer-country'] || [])[0] || {}).value;
+const getHeadersFromRequest = request => request.headers || [];
 
 const getUriFromRequest = (request, {refererMode = false} = {}) => {
     if (!refererMode) return request.uri;
@@ -46,6 +47,7 @@ const getRedirectResponseIfExistFromConfig = (request, config) => {
         host: getHostFromRequest(request),
         uri: getUriFromRequest(request, config),
         country: getCountryFromRequest(request),
+        headers: getHeadersFromRequest(request),
     };
     return ((config || {}).redirects || []).find(
         rule => isMatchingRule(rule, context, request)
