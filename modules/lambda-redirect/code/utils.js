@@ -16,12 +16,15 @@ const buildDefaultResponse = () => ({
 
 const isHostMatching = (a, b) => !a ? false : (('string' === typeof a) ? (a === b) : !!b.match(a));
 const isUriMatching = (a, b) => !a ? false : (('string' === typeof a) ? (a === b) : !!b.match(a));
+const isTestMatching = (a, b) => !a ? false : (('function' === typeof a) ? !!a(b) : false);
 
 const isMatchingRule = (rule, context) => {
     let r = undefined;
     // noinspection PointlessBooleanExpressionJS
     rule.host && (r = ((undefined !== r) ? r : true) && isHostMatching(rule.host, context.host));
     rule.uri && (r = ((undefined !== r) ? r : true) && isUriMatching(rule.uri, context.uri));
+    rule.test && (r = ((undefined !== r) ? r : true) && isTestMatching(rule.test, context));
+
     return r;
 }
 
