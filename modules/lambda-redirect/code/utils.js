@@ -17,18 +17,21 @@ const buildDefaultResponse = () => ({
 const isHostMatching = (a, b) => !a ? false : (('string' === typeof a) ? (a === b) : !!b.match(a));
 const isUriMatching = (a, b) => !a ? false : (('string' === typeof a) ? (a === b) : !!b.match(a));
 const isTestMatching = (a, b) => !a ? false : (('function' === typeof a) ? !!a(b) : false);
+const isCountryMatching = (a, b) => !a ? false : (Array.isArray(a) ? a.includes(b) : (a === b));
 
 const isMatchingRule = (rule, context) => {
     let r = undefined;
     // noinspection PointlessBooleanExpressionJS
     rule.host && (r = ((undefined !== r) ? r : true) && isHostMatching(rule.host, context.host));
     rule.uri && (r = ((undefined !== r) ? r : true) && isUriMatching(rule.uri, context.uri));
+    rule.country && (r = ((undefined !== r) ? r : true) && isCountryMatching(rule.country, context.country));
     rule.test && (r = ((undefined !== r) ? r : true) && isTestMatching(rule.test, context));
 
     return r;
 }
 
 const getHostFromRequest = request => (((request.headers || [])['host'] || [])[0] || {}).value;
+const getCountryFromRequest = request => (((request.headers || [])['cloudfront-viewer-country'] || [])[0] || {}).value;
 
 const getUriFromRequest = (request, {refererMode = false} = {}) => {
     if (!refererMode) return request.uri;
@@ -42,6 +45,7 @@ const getRedirectResponseIfExistFromConfig = (request, config) => {
     const context = {
         host: getHostFromRequest(request),
         uri: getUriFromRequest(request, config),
+        country: getCountryFromRequest(request),
     };
     return ((config || {}).redirects || []).find(
         rule => isMatchingRule(rule, context, request)
