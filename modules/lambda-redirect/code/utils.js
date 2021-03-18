@@ -16,16 +16,23 @@ const buildDefaultResponse = () => ({
 
 const isHostMatching = (a, b) => !a ? false : (('string' === typeof a) ? (a === b) : !!b.match(a));
 const isUriMatching = (a, b) => !a ? false : (('string' === typeof a) ? (a === b) : !!b.match(a));
-const isTestMatching = (a, b) => !a ? false : (('function' === typeof a) ? !!a(b) : false);
+const applyTest = (a, b) => !a ? false : (('function' === typeof a) ? !!a(b) : false);
 const isCountryMatching = (a, b) => !a ? false : (Array.isArray(a) ? a.includes(b) : (a === b));
 
-const isMatchingRule = (rule, context) => {
+const matchRuleAndOptionallyUpdateRule = (rule, context) => {
     let r = undefined;
     // noinspection PointlessBooleanExpressionJS
     rule.host && (r = ((undefined !== r) ? r : true) && isHostMatching(rule.host, context.host));
     rule.uri && (r = ((undefined !== r) ? r : true) && isUriMatching(rule.uri, context.uri));
     rule.country && (r = ((undefined !== r) ? r : true) && isCountryMatching(rule.country, context.country));
-    rule.test && (r = ((undefined !== r) ? r : true) && isTestMatching(rule.test, context));
+    if (rule.test) {
+        r = ((undefined !== r) ? r : true);
+        const testResult = applyTest(rule.test, context);
+        if (!!testResult && ('string' === typeof testResult)) {
+            rule.location = testResult;
+        }
+        r = r && !!testResult;
+    }
 
     return r;
 }
@@ -50,7 +57,7 @@ const getRedirectResponseIfExistFromConfig = (request, config) => {
         headers: getHeadersFromRequest(request),
     };
     return ((config || {}).redirects || []).find(
-        rule => isMatchingRule(rule, context, request)
+        rule => matchRuleAndOptionallyUpdateRule(rule, context, request)
     );
 };
 
@@ -64,6 +71,7 @@ const getRedirectResponseIfExistForRequest = request => {
         status: rule.status || '302',
         statusDescription: 'Found',
         headers: {
+            ...(rule.headers || {}),
             location: [{
                 key: 'Location',
                 value: rule.location,
