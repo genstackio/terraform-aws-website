@@ -57,7 +57,6 @@ resource "aws_cloudfront_distribution" "website" {
   enabled             = true
   is_ipv6_enabled     = true
   comment             = "Website ${var.name} Distribution - Redirect to ${var.target}"
-  default_root_object = "index.html"
 
   aliases = [var.dns]
 
