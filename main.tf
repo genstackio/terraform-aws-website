@@ -57,11 +57,13 @@ resource "aws_cloudfront_distribution" "website" {
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = "website-${var.name}-s3"
 
-    forwarded_values {
-      query_string = var.forward_query_string
-
-      cookies {
-        forward = "none"
+    dynamic "forwarded_values" {
+      for_each = var.cache_policy_id ? {} : {x: true}
+      content {
+        query_string = var.forward_query_string
+        cookies {
+          forward = "none"
+        }
       }
     }
 
