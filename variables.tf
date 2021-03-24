@@ -54,3 +54,7 @@ variable "lambdas" {
   }))
   default = []
 }
+variable "cache_policy_id" {
+  type    = string
+  default = null
+}

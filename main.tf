@@ -70,6 +70,7 @@ resource "aws_cloudfront_distribution" "website" {
     default_ttl            = 3600
     max_ttl                = 86400
     compress               = true
+    cache_policy_id        = var.cache_policy_id
 
    dynamic "lambda_function_association" {
      for_each = toset(var.lambdas)
