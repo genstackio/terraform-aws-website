@@ -64,6 +64,7 @@ resource "aws_cloudfront_distribution" "website" {
         cookies {
           forward = "none"
         }
+        headers      = var.forwarded_headers
       }
     }
 
@@ -147,7 +148,7 @@ resource "aws_cloudfront_distribution" "website_redirect_apex" {
 
     forwarded_values {
       query_string = var.forward_query_string
-
+      headers      = var.forwarded_headers
       cookies {
         forward = "none"
       }
