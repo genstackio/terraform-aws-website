@@ -37,23 +37,26 @@ const matchRuleAndOptionallyUpdateRule = (rule, context) => {
     return r;
 }
 
-const getHostFromRequest = request => (((request.headers || [])['host'] || [])[0] || {}).value;
-const getCountryFromRequest = request => (((request.headers || [])['cloudfront-viewer-country'] || [])[0] || {}).value;
+const getHeaderFromRequest = (request, name, defaultValue = undefined) => {
+    const headers = getHeadersFromRequest(request);
+    const value = ((headers[name] || headers[(name || '').toLowerCase()] || [])[0] || {}).value;
+    return (undefined === value) ? defaultValue : value;
+}
 const getHeadersFromRequest = request => request.headers || [];
 
 const getUriFromRequest = (request, {refererMode = false} = {}) => {
     if (!refererMode) return request.uri;
-    let host = getHostFromRequest(request);
-    let referer = (((request.headers || [])["referer"] || [])[0] || {}).value;
+    let host = getHeaderFromRequest(request, 'Host');
+    let referer = getHeaderFromRequest(request, 'Referer');
     if (host && referer) return referer.split(host)[1];
     return request.uri;
 }
 
 const getRedirectResponseIfExistFromConfig = (request, config) => {
     const context = {
-        host: getHostFromRequest(request),
+        host: getHeaderFromRequest(request, 'Host'),
         uri: getUriFromRequest(request, config),
-        country: getCountryFromRequest(request),
+        country: getHeaderFromRequest(request, 'CloudFront-Viewer-Country'),
         headers: getHeadersFromRequest(request),
     };
     return ((config || {}).redirects || []).find(
