@@ -35,3 +35,7 @@ variable "policy_statements" {
   )
   default = []
 }
+variable "log_group_regions" {
+  type    = list(string)
+  default = []
+}
