@@ -19,6 +19,7 @@ provider "aws" {
   alias = "us-west-2"
   region = "us-west-2"
 }
+/*
 provider "aws" {
   alias = "af-south-1"
   region = "af-south-1"
@@ -27,6 +28,7 @@ provider "aws" {
   alias = "ap-east-1"
   region = "ap-east-1"
 }
+*/
 provider "aws" {
   alias = "ap-south-1"
   region = "ap-south-1"
@@ -71,18 +73,22 @@ provider "aws" {
   alias = "eu-west-3"
   region = "eu-west-3"
 }
+/*
 provider "aws" {
   alias = "eu-south-1"
   region = "eu-south-1"
 }
+*/
 provider "aws" {
   alias = "eu-north-1"
   region = "eu-north-1"
 }
+/*
 provider "aws" {
   alias = "me-south-1"
   region = "me-south-1"
 }
+*/
 provider "aws" {
   alias = "sa-east-1"
   region = "sa-east-1"

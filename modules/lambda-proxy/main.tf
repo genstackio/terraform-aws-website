@@ -99,6 +99,7 @@ module "log-group-us-west-2" {
   name    = var.name
   providers = { aws = aws.us-west-2 }
 }
+/*
 module "log-group-af-south-1" {
   source  = "genstackio/lambda/aws//modules/log-group"
   version = "0.1.5"
@@ -113,6 +114,7 @@ module "log-group-ap-east-1" {
   name    = var.name
   providers = { aws = aws.ap-east-1 }
 }
+*/
 module "log-group-ap-south-1" {
   source  = "genstackio/lambda/aws//modules/log-group"
   version = "0.1.5"
@@ -190,6 +192,7 @@ module "log-group-eu-west-3" {
   name    = var.name
   providers = { aws = aws.eu-west-3 }
 }
+/*
 module "log-group-eu-south-1" {
   source  = "genstackio/lambda/aws//modules/log-group"
   version = "0.1.5"
@@ -197,6 +200,7 @@ module "log-group-eu-south-1" {
   name    = var.name
   providers = { aws = aws.eu-south-1 }
 }
+*/
 module "log-group-eu-north-1" {
   source  = "genstackio/lambda/aws//modules/log-group"
   version = "0.1.5"
@@ -204,6 +208,7 @@ module "log-group-eu-north-1" {
   name    = var.name
   providers = { aws = aws.eu-north-1 }
 }
+/*
 module "log-group-me-south-1" {
   source  = "genstackio/lambda/aws//modules/log-group"
   version = "0.1.5"
@@ -211,6 +216,7 @@ module "log-group-me-south-1" {
   name    = var.name
   providers = { aws = aws.me-south-1 }
 }
+*/
 module "log-group-sa-east-1" {
   source  = "genstackio/lambda/aws//modules/log-group"
   version = "0.1.5"
