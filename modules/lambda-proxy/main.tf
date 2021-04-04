@@ -1,6 +1,6 @@
 module "lambda" {
   source            = "genstackio/lambda/aws"
-  version           = "0.1.6"
+  version           = "0.1.7"
   name              = var.name
   file              = data.archive_file.lambda-code.output_path
   runtime           = var.runtime
@@ -27,7 +27,7 @@ module "lambda" {
 
 module "regional-log-groups" {
   source  = "genstackio/lambda/aws//modules/regional-log-groups"
-  version = "0.1.6"
+  version = "0.1.7"
   name    = var.name
   regions = var.log_group_regions
   providers = {
