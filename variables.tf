@@ -62,3 +62,10 @@ variable "forwarded_headers" {
   type    = list(string)
   default = null
 }
+variable "custom_origin_headers" {
+  type = list(object({
+    name  = string
+    value = string
+  }))
+  default = []
+}
