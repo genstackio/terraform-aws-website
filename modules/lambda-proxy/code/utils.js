@@ -70,12 +70,13 @@ const getComputedResultIfExistFromConfig = async (cfEvent, config) => {
     } else {
         result = found.origin || (found.proxy && await found.proxy(x)) || (found.custom && await found.custom(x));
     }
+    const request = cfEvent.request;
+    (request.origin && request.origin.custom && request.origin.custom.customHeaders && request.origin.custom.customHeaders['x-cloudfront-edge-next-debug']) && console.log(`uri: ${request.uri} =>`, JSON.stringify(result))
     if (!result) result = {};
     if (result.response) return result.response;
-    const request = cfEvent.request;
     result.uri && (request.uri = result.uri);
     result.origin && (request.origin = result.origin);
-    (request.origin.custom && request.origin.custom.domainName) && (request.headers.host = [{key: 'Host', value: request.origin.custom.domainName[0].value}]);
+    (request.origin.custom && request.origin.custom.domainName) && (request.headers.host = [{key: 'Host', value: request.origin.custom.domainName}]);
     result.headers && (Object.assign(request.headers, result.headers))
     return request;
 };
