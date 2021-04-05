@@ -64,20 +64,17 @@ const getComputedResultIfExistFromConfig = (cfEvent, config) => {
     );
     let result;
     const x = {context, cfEvent, config};
-    if (!found && ((config || {}).proxy)) result = (config || {}).proxy(x);
-    else {
-        if ('function' === typeof found.origin) {
-            result = found.origin(x);
-        } else {
-            result = found.origin;
-        }
-    }
-    if (result) {
-        result = Object.assign(cfEvent.request, {origin: result});
+    const c = config || {};
+    if (!found) {
+        result = c.origin || (c.proxy && c.proxy(x)) || (c.custom && c.custom(x));
     } else {
-        result = (config || {}).custom ? (config || {}).custom(x) : undefined;
+        result = found.origin || (found.proxy && found.proxy(x)) || (found.custom && found.custom(x));
     }
-    return result;
+    if (!result) return undefined;
+    if (result.response) return result.response;
+    if (result.origin) result = {origin: result.origin};
+    if (result.request) result = result.request;
+    return Object.assign(cfEvent.request, result)
 };
 
 const getComputedResultIfExistForCloudFrontEvent = cfEvent => {
