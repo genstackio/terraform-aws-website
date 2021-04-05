@@ -10,16 +10,7 @@ module "lambda" {
   variables         = var.variables
   publish           = true
   assume_role_identifiers = ["edgelambda.amazonaws.com"]
-  policy_statements = concat(
-    [
-      {
-        effect    = "Allow"
-        resources = ["arn:aws:logs:*:*:*"]
-        actions   = ["logs:CreateLogGroup"]
-      }
-    ],
-    var.policy_statements
-  )
+  policy_statements = var.policy_statements
   providers = {
     aws = aws.us-east-1
   }
