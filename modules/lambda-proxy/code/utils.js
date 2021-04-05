@@ -52,7 +52,7 @@ const getUriFromCloudFrontEvent = (cfEvent, {refererMode = false} = {}) => {
     return cfEvent.request.uri;
 }
 
-const getComputedResultIfExistFromConfig = (cfEvent, config) => {
+const getComputedResultIfExistFromConfig = async (cfEvent, config) => {
     const context = {
         host: getHeaderFromCloudFrontEvent(cfEvent, 'Host'),
         uri: getUriFromCloudFrontEvent(cfEvent, config),
@@ -66,9 +66,9 @@ const getComputedResultIfExistFromConfig = (cfEvent, config) => {
     const x = {context, cfEvent, config};
     const c = config || {};
     if (!found) {
-        result = c.origin || (c.proxy && c.proxy(x)) || (c.custom && c.custom(x));
+        result = c.origin || (c.proxy && await c.proxy(x)) || (c.custom && await c.custom(x));
     } else {
-        result = found.origin || (found.proxy && found.proxy(x)) || (found.custom && found.custom(x));
+        result = found.origin || (found.proxy && await found.proxy(x)) || (found.custom && await found.custom(x));
     }
     if (!result) return undefined;
     if (result.response) return result.response;
@@ -77,15 +77,15 @@ const getComputedResultIfExistFromConfig = (cfEvent, config) => {
     return Object.assign(cfEvent.request, result)
 };
 
-const getComputedResultIfExistForCloudFrontEvent = cfEvent => {
+const getComputedResultIfExistForCloudFrontEvent = async cfEvent => {
     let config = require('./config');
-    if ('function' === typeof config) config = config(cfEvent.request, cfEvent);
+    if ('function' === typeof config) config = await config(cfEvent.request, cfEvent);
 
-    const result = getComputedResultIfExistFromConfig(cfEvent, config);
+    const result = await getComputedResultIfExistFromConfig(cfEvent, config);
 
     return result || (cfEvent ? cfEvent.request : buildDefaultResponse());
 }
-const processCloudFrontEvent = cfEvent => getComputedResultIfExistForCloudFrontEvent(cfEvent);
+const processCloudFrontEvent = async cfEvent => getComputedResultIfExistForCloudFrontEvent(cfEvent);
 
 module.exports = {
     buildDefaultResponse,
