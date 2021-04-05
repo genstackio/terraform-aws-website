@@ -60,12 +60,18 @@ const getComputedResultIfExistFromConfig = (cfEvent, config) => {
         headers: getHeadersFromCloudFrontEvent(cfEvent),
     };
     const found = ((config || {}).rules || []).find(
-        rule => matchRuleAndOptionallyUpdateRule(rule, context, request)
+        rule => matchRuleAndOptionallyUpdateRule(rule, context, cfEvent, config)
     );
     let result;
     const x = {context, cfEvent, config};
     if (!found && ((config || {}).proxy)) result = (config || {}).proxy(x);
-    else result = found(x);
+    else {
+        if ('function' === typeof found.origin) {
+            result = found.origin(x);
+        } else {
+            result = found.origin;
+        }
+    }
     if (result) {
         result = Object.assign(cfEvent.request, {origin: result});
     } else {
