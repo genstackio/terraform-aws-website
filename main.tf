@@ -35,7 +35,7 @@ resource "aws_s3_bucket" "website_redirect_apex" {
 resource "aws_cloudfront_distribution" "website" {
   origin {
     domain_name         = aws_s3_bucket.website.website_endpoint
-    origin_id           = "website-${var.name}-s3"
+    origin_id           = local.origin_target_id
     custom_origin_config {
       // These are all the defaults.
       http_port              = "80"
@@ -62,7 +62,7 @@ resource "aws_cloudfront_distribution" "website" {
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "website-${var.name}-s3"
+    target_origin_id = local.origin_target_id
 
     dynamic "forwarded_values" {
       for_each = (null != var.cache_policy_id) ? {} : {x: true}
@@ -89,6 +89,20 @@ resource "aws_cloudfront_distribution" "website" {
        lambda_arn   = lambda_function_association.value.lambda_arn
        include_body = lambda_function_association.value.include_body
      }
+    }
+  }
+
+  dynamic "ordered_cache_behavior" {
+    for_each = var.custom_behaviors != null ? var.custom_behaviors : []
+    content {
+      path_pattern             = ordered_cache_behavior.value["path_pattern"]
+      allowed_methods          = lookup(ordered_cache_behavior.value, "allowed_methods", ["GET", "HEAD"])
+      cached_methods           = lookup(ordered_cache_behavior.value, "cached_methods", ["GET", "HEAD"])
+      target_origin_id         = lookup(ordered_cache_behavior.value, "target_origin_id", local.origin_target_id)
+      compress                 = lookup(ordered_cache_behavior.value, "compress", true)
+      viewer_protocol_policy   = lookup(ordered_cache_behavior.value, "viewer_protocol_policy", "redirect-to-https")
+      origin_request_policy_id = lookup(ordered_cache_behavior.value, "origin_request_policy_id", null)
+      cache_policy_id          = lookup(ordered_cache_behavior.value, "cache_policy_id", null)
     }
   }
 
@@ -132,7 +146,7 @@ resource "aws_cloudfront_distribution" "website_redirect_apex" {
   count = var.apex_redirect ? 1 : 0
   origin {
     domain_name         = aws_s3_bucket.website_redirect_apex[count.index].website_endpoint
-    origin_id           = "website-${var.name}-s3"
+    origin_id           = local.origin_target_id
     custom_origin_config {
       // These are all the defaults.
       http_port              = "80"
@@ -151,7 +165,7 @@ resource "aws_cloudfront_distribution" "website_redirect_apex" {
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "website-${var.name}-s3"
+    target_origin_id = local.origin_target_id
 
     forwarded_values {
       query_string = var.forward_query_string

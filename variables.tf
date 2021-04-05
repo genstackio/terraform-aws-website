@@ -69,3 +69,7 @@ variable "custom_origin_headers" {
   }))
   default = []
 }
+variable "custom_behaviors" {
+  type    = list(any)
+  default = null
+}
