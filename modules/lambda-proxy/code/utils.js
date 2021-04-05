@@ -70,11 +70,13 @@ const getComputedResultIfExistFromConfig = async (cfEvent, config) => {
     } else {
         result = found.origin || (found.proxy && await found.proxy(x)) || (found.custom && await found.custom(x));
     }
-    if (!result) return undefined;
+    if (!result) result = {};
     if (result.response) return result.response;
-    if (result.origin) result = {origin: result.origin};
-    if (result.request) result = result.request;
-    return Object.assign(cfEvent.request, result)
+    const request = cfEvent.request;
+    result.origin && (request.origin = result.origin);
+    (request.origin.custom && request.origin.custom.domainName) && (request.headers.host = [{key: 'Host', value: request.origin.custom.domainName}]);
+    result.headers && (Object.assign(request.headers, result.headers))
+    return request;
 };
 
 const getComputedResultIfExistForCloudFrontEvent = async cfEvent => {
