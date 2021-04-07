@@ -15,13 +15,3 @@ module "lambda" {
     aws = aws.us-east-1
   }
 }
-
-module "regional-log-groups" {
-  source  = "genstackio/lambda/aws//modules/regional-log-groups"
-  version = "0.1.8"
-  name    = var.name
-  regions = var.log_group_regions
-  providers = {
-    aws = aws.us-east-1
-  }
-}
