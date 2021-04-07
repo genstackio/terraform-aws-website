@@ -12,6 +12,6 @@ module "lambda" {
   assume_role_identifiers = ["edgelambda.amazonaws.com"]
   policy_statements = var.policy_statements
   providers = {
-    aws = aws.us-east-1
+    aws = aws
   }
 }
