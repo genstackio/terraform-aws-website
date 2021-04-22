@@ -73,3 +73,7 @@ variable "custom_behaviors" {
   type    = list(any)
   default = null
 }
+variable "default_root_object" {
+  type    = string
+  default = "index.html"
+}

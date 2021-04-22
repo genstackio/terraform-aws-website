@@ -55,7 +55,7 @@ resource "aws_cloudfront_distribution" "website" {
   enabled             = true
   is_ipv6_enabled     = true
   comment             = "Website ${var.name} Distribution"
-  default_root_object = "index.html"
+  default_root_object = var.default_root_object
 
   aliases = [var.dns]
 
