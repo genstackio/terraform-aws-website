@@ -128,7 +128,7 @@ resource "aws_cloudfront_distribution" "website" {
     for_each = toset(("" == var.error_403_page_path) ? [] : [var.error_403_page_path])
     content {
       error_code    = 403
-      response_code = 200
+      response_code = var.error_403_page_code
       response_page_path = custom_error_response.value
     }
   }
@@ -137,7 +137,7 @@ resource "aws_cloudfront_distribution" "website" {
     for_each = toset(("" == var.error_404_page_path) ? [] : [var.error_404_page_path])
     content {
       error_code    = 404
-      response_code = 200
+      response_code = var.error_404_page_code
       response_page_path = custom_error_response.value
     }
   }

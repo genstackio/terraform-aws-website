@@ -26,6 +26,14 @@ variable "error_404_page_path" {
   type    = string
   default = ""
 }
+variable "error_403_page_code" {
+  type    = number
+  default = 200
+}
+variable "error_404_page_code" {
+  type    = number
+  default = 200
+}
 variable "geolocations" {
   type    = list(string)
   default = ["FR", "BE", "LU", "IT", "ES", "CH", "NL", "GB", "PT", "MC"]
