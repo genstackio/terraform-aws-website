@@ -22,3 +22,11 @@ variable "apex_redirect" {
   type    = bool
   default = false
 }
+variable "lambdas" {
+  type = list(object({
+    event_type = string
+    lambda_arn = string
+    include_body = bool
+  }))
+  default = []
+}

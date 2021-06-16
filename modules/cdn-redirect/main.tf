@@ -58,7 +58,16 @@ resource "aws_cloudfront_distribution" "cdn" {
     compress               = true
   }
 
-  price_class = var.price_class
+  dynamic "lambda_function_association" {
+    for_each = toset(var.lambdas)
+    content {
+      event_type   = lambda_function_association.value.event_type
+      lambda_arn   = lambda_function_association.value.lambda_arn
+      include_body = lambda_function_association.value.include_body
+    }
+  }
+
+price_class = var.price_class
 
   restrictions {
     geo_restriction {
