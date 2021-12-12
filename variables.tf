@@ -56,8 +56,8 @@ variable "forward_query_string" {
 }
 variable "lambdas" {
   type = list(object({
-    event_type = string
-    lambda_arn = string
+    event_type   = string
+    lambda_arn   = string
     include_body = bool
   }))
   default = []
@@ -84,4 +84,10 @@ variable "custom_behaviors" {
 variable "default_root_object" {
   type    = string
   default = "index.html"
+}
+
+variable "can_overwrite" {
+  type        = bool
+  default     = false
+  description = "Allow overwriting route53 records for pre-existing CNAME/certificates"
 }
