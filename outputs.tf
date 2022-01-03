@@ -1,6 +1,9 @@
 output "cloudfront_id" {
   value = aws_cloudfront_distribution.website.id
 }
+output "cloudfront_arn" {
+  value = aws_cloudfront_distribution.website.arn
+}
 output "dns" {
   value = var.dns
 }
