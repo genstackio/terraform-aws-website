@@ -1,9 +1,12 @@
 resource "aws_s3_bucket" "website" {
   bucket = var.bucket_name
-  acl    = "public-read"
   tags = {
     Website = var.name
   }
+}
+resource "aws_s3_bucket_acl" "website" {
+  bucket = aws_s3_bucket.website.id
+  acl    = "public-read"
 }
 resource "aws_s3_bucket_website_configuration" "website" {
   bucket = aws_s3_bucket.website.bucket
@@ -11,7 +14,7 @@ resource "aws_s3_bucket_website_configuration" "website" {
   index_document {
     suffix = var.index_document
   }
-  error_document = {
+  error_document {
     key = ("" == var.error_document) ? var.index_document : var.error_document
   }
 }
@@ -30,13 +33,18 @@ resource "aws_s3_bucket_cors_configuration" "website" {
 resource "aws_s3_bucket" "website_redirect_apex" {
   count = var.apex_redirect ? 1 : 0
   bucket = "www.${var.bucket_name}"
-  acl    = "public-read"
   tags = {
     Website = var.name
   }
 }
+resource "aws_s3_bucket_acl" "website_redirect_apex" {
+  count = var.apex_redirect ? 1 : 0
+  bucket = aws_s3_bucket.website_redirect_apex[0].id
+  acl    = "public-read"
+}
 resource "aws_s3_bucket_website_configuration" "website_redirect_apex" {
-  bucket = aws_s3_bucket.website_redirect_apex.bucket
+  count  = var.apex_redirect ? 1 : 0
+  bucket = aws_s3_bucket.website_redirect_apex[0].bucket
 
   redirect_all_requests_to {
     host_name = var.dns

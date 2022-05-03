@@ -10,10 +10,14 @@ resource "aws_cloudfront_function" "function" {
 resource "aws_s3_bucket" "cdn_redirect_apex" {
   count = (null != local.dns_1) ? 1 : 0
   bucket = local.dns_1
-  acl    = "public-read"
   tags = {
     Website = var.name
   }
+}
+resource "aws_s3_bucket_acl" "cdn_redirect_apex" {
+  count = (null != local.dns_1) ? 1 : 0
+  bucket = aws_s3_bucket.cdn_redirect_apex[0].id
+  acl    = "public-read"
 }
 resource "aws_s3_bucket_website_configuration" "cdn_redirect_apex" {
   bucket = aws_s3_bucket.cdn_redirect_apex.bucket

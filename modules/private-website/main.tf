@@ -1,6 +1,9 @@
 resource "aws_s3_bucket" "website" {
   bucket = var.bucket_name
-  acl    = "private"
+}
+resource "aws_s3_bucket_acl" "website" {
+  bucket = aws_s3_bucket.website.id
+  acl    = "public-read"
 }
 
 resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
