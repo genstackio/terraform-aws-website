@@ -8,17 +8,18 @@ resource "aws_s3_bucket" "website" {
   tags = {
     Website = var.name
   }
-  dynamic "cors_rule" {
-    for_each = (var.bucket_cors == true) ? {cors: true} : {}
-    content {
-      allowed_headers = ["*"]
-      allowed_methods = ["POST", "GET", "PUT", "DELETE"]
-      allowed_origins = ["*"]
-      expose_headers  = ["ETag"]
-      max_age_seconds = 3000
-    }
-  }
+}
+resource "aws_s3_bucket_cors_configuration" "website" {
+  count =  (var.bucket_cors == true) ? 1 : 0
+  bucket = aws_s3_bucket.website.bucket
 
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["POST", "GET", "PUT", "DELETE"]
+    allowed_origins = ["*"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
 }
 resource "aws_s3_bucket" "website_redirect_apex" {
   count = var.apex_redirect ? 1 : 0

@@ -5,18 +5,20 @@ resource "aws_s3_bucket" "website" {
     routing_rules            = var.routing_rules
     redirect_all_requests_to = var.target
   }
-  dynamic "cors_rule" {
-    for_each = (var.bucket_cors == true) ? {cors: true} : {}
-    content {
-      allowed_headers = ["*"]
-      allowed_methods = ["POST", "GET", "PUT", "DELETE"]
-      allowed_origins = ["*"]
-      expose_headers  = ["ETag"]
-      max_age_seconds = 3000
-    }
-  }
   tags = {
     Website = var.name
+  }
+}
+resource "aws_s3_bucket_cors_configuration" "website" {
+  count =  (var.bucket_cors == true) ? 1 : 0
+  bucket = aws_s3_bucket.website.bucket
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["POST", "GET", "PUT", "DELETE"]
+    allowed_origins = ["*"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
   }
 }
 resource "aws_s3_bucket" "website_1" {
@@ -27,18 +29,20 @@ resource "aws_s3_bucket" "website_1" {
     routing_rules            = var.routing_rules
     redirect_all_requests_to = var.target
   }
-  dynamic "cors_rule" {
-    for_each = (var.bucket_cors == true) ? {cors: true} : {}
-    content {
-      allowed_headers = ["*"]
-      allowed_methods = ["POST", "GET", "PUT", "DELETE"]
-      allowed_origins = ["*"]
-      expose_headers  = ["ETag"]
-      max_age_seconds = 3000
-    }
-  }
   tags = {
     Website = var.name
+  }
+}
+resource "aws_s3_bucket_cors_configuration" "website_1" {
+  count =  (var.bucket_cors == true) ? 1 : 0
+  bucket = aws_s3_bucket.website_1.bucket
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["POST", "GET", "PUT", "DELETE"]
+    allowed_origins = ["*"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
   }
 }
 
