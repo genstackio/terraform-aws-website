@@ -11,11 +11,16 @@ resource "aws_s3_bucket" "cdn_redirect_apex" {
   count = (null != local.dns_1) ? 1 : 0
   bucket = local.dns_1
   acl    = "public-read"
-  website {
-    redirect_all_requests_to = "https://${var.dns}"
-  }
   tags = {
     Website = var.name
+  }
+}
+resource "aws_s3_bucket_website_configuration" "cdn_redirect_apex" {
+  bucket = aws_s3_bucket.cdn_redirect_apex.bucket
+
+  redirect_all_requests_to {
+    host_name = var.dns
+    protocol  = "https"
   }
 }
 

@@ -1,12 +1,16 @@
 resource "aws_s3_bucket" "website" {
   bucket = local.bucket_name_0
   acl    = "public-read"
-  website {
-    routing_rules            = var.routing_rules
-    redirect_all_requests_to = var.target
-  }
   tags = {
     Website = var.name
+  }
+}
+resource "aws_s3_bucket_website_configuration" "website" {
+  bucket = aws_s3_bucket.website.bucket
+
+  redirect_all_requests_to {
+    host_name = local.target_domain
+    protocol  = local.target_protocol
   }
 }
 resource "aws_s3_bucket_cors_configuration" "website" {
@@ -25,12 +29,16 @@ resource "aws_s3_bucket" "website_1" {
   count = var.apex_redirect ? 1 : 0
   bucket = local.bucket_name_1
   acl    = "public-read"
-  website {
-    routing_rules            = var.routing_rules
-    redirect_all_requests_to = var.target
-  }
   tags = {
     Website = var.name
+  }
+}
+resource "aws_s3_bucket_website_configuration" "website_1" {
+  bucket = aws_s3_bucket.website_1.bucket
+
+  redirect_all_requests_to {
+    host_name = local.target_domain
+    protocol  = local.target_protocol
   }
 }
 resource "aws_s3_bucket_cors_configuration" "website_1" {

@@ -1,22 +1,32 @@
 resource "aws_s3_bucket" "cdn_redirect" {
   bucket = local.dns_0
   acl    = "public-read"
-  website {
-    redirect_all_requests_to = var.target
-  }
   tags = {
     Website = var.name
+  }
+}
+resource "aws_s3_bucket_website_configuration" "cdn_redirect" {
+  bucket = aws_s3_bucket.cdn_redirect.bucket
+
+  redirect_all_requests_to {
+    host_name = local.target_domain
+    protocol  = local.target_protocol
   }
 }
 resource "aws_s3_bucket" "cdn_redirect_apex" {
   count = (null != local.dns_1) ? 1 : 0
   bucket = local.dns_1
   acl    = "public-read"
-  website {
-    redirect_all_requests_to = var.target
-  }
   tags = {
     Website = var.name
+  }
+}
+resource "aws_s3_bucket_website_configuration" "cdn_redirect_apex" {
+  bucket = aws_s3_bucket.cdn_redirect_apex.bucket
+
+  redirect_all_requests_to {
+    host_name = local.target_domain
+    protocol  = local.target_protocol
   }
 }
 
