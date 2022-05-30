@@ -20,7 +20,8 @@ resource "aws_s3_bucket_acl" "cdn_redirect_apex" {
   acl    = "public-read"
 }
 resource "aws_s3_bucket_website_configuration" "cdn_redirect_apex" {
-  bucket = aws_s3_bucket.cdn_redirect_apex.bucket
+  count = (null != local.dns_1) ? 1 : 0
+  bucket = aws_s3_bucket.cdn_redirect_apex[0].bucket
 
   redirect_all_requests_to {
     host_name = var.dns
