@@ -95,13 +95,14 @@ resource "aws_cloudfront_distribution" "website" {
       }
     }
 
-    viewer_protocol_policy   = "redirect-to-https"
-    min_ttl                  = 0
-    default_ttl              = 3600
-    max_ttl                  = 86400
-    compress                 = true
-    cache_policy_id          = var.cache_policy_id
-    origin_request_policy_id = var.origin_request_policy_id
+    viewer_protocol_policy     = "redirect-to-https"
+    min_ttl                    = 0
+    default_ttl                = 3600
+    max_ttl                    = 86400
+    compress                   = true
+    cache_policy_id            = var.cache_policy_id
+    origin_request_policy_id   = var.origin_request_policy_id
+    response_headers_policy_id = var.response_headers_policy_id
 
    dynamic "lambda_function_association" {
      for_each = toset(var.lambdas)
@@ -124,6 +125,7 @@ resource "aws_cloudfront_distribution" "website" {
       viewer_protocol_policy   = lookup(ordered_cache_behavior.value, "viewer_protocol_policy", "redirect-to-https")
       origin_request_policy_id = lookup(ordered_cache_behavior.value, "origin_request_policy_id", null)
       cache_policy_id          = lookup(ordered_cache_behavior.value, "cache_policy_id", null)
+      response_headers_policy_id = lookup(ordered_cache_behavior.value, "response_headers_policy_id", null)
     }
   }
 
