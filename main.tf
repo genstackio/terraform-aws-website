@@ -95,12 +95,13 @@ resource "aws_cloudfront_distribution" "website" {
       }
     }
 
-    viewer_protocol_policy = "redirect-to-https"
-    min_ttl                = 0
-    default_ttl            = 3600
-    max_ttl                = 86400
-    compress               = true
-    cache_policy_id        = var.cache_policy_id
+    viewer_protocol_policy   = "redirect-to-https"
+    min_ttl                  = 0
+    default_ttl              = 3600
+    max_ttl                  = 86400
+    compress                 = true
+    cache_policy_id          = var.cache_policy_id
+    origin_request_policy_id = var.origin_request_policy_id
 
    dynamic "lambda_function_association" {
      for_each = toset(var.lambdas)
