@@ -1,12 +1,31 @@
+resource "aws_cloudfront_function" "function" {
+  for_each = local.functions
+  name    = "${var.name}-${each.key}"
+  runtime = "cloudfront-js-1.0"
+  comment = "${each.key} function"
+  publish = true
+  code    = lookup(each.value, "code", null)
+}
+
 resource "aws_s3_bucket" "cdn_redirect_apex" {
   count = (null != local.dns_1) ? 1 : 0
   bucket = local.dns_1
-  acl    = "public-read"
-  website {
-    redirect_all_requests_to = "https://${var.dns}"
-  }
   tags = {
     Website = var.name
+  }
+}
+resource "aws_s3_bucket_acl" "cdn_redirect_apex" {
+  count = (null != local.dns_1) ? 1 : 0
+  bucket = aws_s3_bucket.cdn_redirect_apex[0].id
+  acl    = "public-read"
+}
+resource "aws_s3_bucket_website_configuration" "cdn_redirect_apex" {
+  count = (null != local.dns_1) ? 1 : 0
+  bucket = aws_s3_bucket.cdn_redirect_apex[0].bucket
+
+  redirect_all_requests_to {
+    host_name = var.dns
+    protocol  = "https"
   }
 }
 
@@ -26,6 +45,13 @@ resource "aws_cloudfront_distribution" "cdn" {
       https_port             = "443"
       origin_protocol_policy = "https-only"
       origin_ssl_protocols   = ["TLSv1.2"]
+    }
+    dynamic custom_header {
+      for_each = var.edge_lambdas_variables
+      content {
+        name  = "x-lambda-var-${replace(lower(custom_header.key), "_", "-")}"
+        value = custom_header.value
+      }
     }
   }
 
@@ -63,6 +89,23 @@ resource "aws_cloudfront_distribution" "cdn" {
        include_body = lambda_function_association.value.include_body
      }
     }
+    dynamic "function_association" {
+      for_each = local.functions
+      content {
+        event_type   = lookup(function_association.value, "event_type", null)
+        function_arn = aws_cloudfront_function.function[function_association.key].arn
+      }
+    }
+
+    dynamic "lambda_function_association" {
+      for_each = local.edge_lambdas
+      content {
+        event_type   = lookup(lambda_function_association.value, "event_type", null)
+        lambda_arn   = lookup(lambda_function_association.value, "lambda_arn", null)
+        include_body = lookup(lambda_function_association.value, "include_body", null)
+      }
+    }
+
   }
 
   price_class = var.price_class

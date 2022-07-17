@@ -66,6 +66,14 @@ variable "cache_policy_id" {
   type    = string
   default = null
 }
+variable "origin_request_policy_id" {
+  type    = string
+  default = null
+}
+variable "response_headers_policy_id" {
+  type    = string
+  default = null
+}
 variable "forwarded_headers" {
   type    = list(string)
   default = null

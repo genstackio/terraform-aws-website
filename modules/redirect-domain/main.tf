@@ -1,44 +1,64 @@
 resource "aws_s3_bucket" "website" {
   bucket = local.bucket_name_0
-  acl    = "public-read"
-  website {
-    routing_rules            = var.routing_rules
-    redirect_all_requests_to = var.target
-  }
-  dynamic "cors_rule" {
-    for_each = (var.bucket_cors == true) ? {cors: true} : {}
-    content {
-      allowed_headers = ["*"]
-      allowed_methods = ["POST", "GET", "PUT", "DELETE"]
-      allowed_origins = ["*"]
-      expose_headers  = ["ETag"]
-      max_age_seconds = 3000
-    }
-  }
   tags = {
     Website = var.name
+  }
+}
+resource "aws_s3_bucket_acl" "cdn_redirect_apex" {
+  bucket = aws_s3_bucket.website.id
+  acl    = "public-read"
+}
+resource "aws_s3_bucket_website_configuration" "website" {
+  bucket = aws_s3_bucket.website.bucket
+
+  redirect_all_requests_to {
+    host_name = local.target_domain
+    protocol  = local.target_protocol
+  }
+}
+resource "aws_s3_bucket_cors_configuration" "website" {
+  count =  (var.bucket_cors == true) ? 1 : 0
+  bucket = aws_s3_bucket.website.bucket
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["POST", "GET", "PUT", "DELETE"]
+    allowed_origins = ["*"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
   }
 }
 resource "aws_s3_bucket" "website_1" {
   count = var.apex_redirect ? 1 : 0
   bucket = local.bucket_name_1
-  acl    = "public-read"
-  website {
-    routing_rules            = var.routing_rules
-    redirect_all_requests_to = var.target
-  }
-  dynamic "cors_rule" {
-    for_each = (var.bucket_cors == true) ? {cors: true} : {}
-    content {
-      allowed_headers = ["*"]
-      allowed_methods = ["POST", "GET", "PUT", "DELETE"]
-      allowed_origins = ["*"]
-      expose_headers  = ["ETag"]
-      max_age_seconds = 3000
-    }
-  }
   tags = {
     Website = var.name
+  }
+}
+resource "aws_s3_bucket_acl" "website_1" {
+  count = (null != local.dns_1) ? 1 : 0
+  bucket = aws_s3_bucket.website_1[0].id
+  acl    = "public-read"
+}
+resource "aws_s3_bucket_website_configuration" "website_1" {
+  count = (null != local.dns_1) ? 1 : 0
+  bucket = aws_s3_bucket.website_1[0].bucket
+
+  redirect_all_requests_to {
+    host_name = local.target_domain
+    protocol  = local.target_protocol
+  }
+}
+resource "aws_s3_bucket_cors_configuration" "website_1" {
+  count =  (var.bucket_cors == true) ? 1 : 0
+  bucket = aws_s3_bucket.website_1.bucket
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["POST", "GET", "PUT", "DELETE"]
+    allowed_origins = ["*"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
   }
 }
 

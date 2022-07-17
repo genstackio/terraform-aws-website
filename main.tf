@@ -1,34 +1,54 @@
 resource "aws_s3_bucket" "website" {
   bucket = var.bucket_name
-  acl    = "public-read"
-  website {
-    index_document = var.index_document
-    error_document = ("" == var.error_document) ? var.index_document : var.error_document
-  }
   tags = {
     Website = var.name
   }
-  dynamic "cors_rule" {
-    for_each = (var.bucket_cors == true) ? {cors: true} : {}
-    content {
-      allowed_headers = ["*"]
-      allowed_methods = ["POST", "GET", "PUT", "DELETE"]
-      allowed_origins = ["*"]
-      expose_headers  = ["ETag"]
-      max_age_seconds = 3000
-    }
-  }
+}
+resource "aws_s3_bucket_acl" "website" {
+  bucket = aws_s3_bucket.website.id
+  acl    = "public-read"
+}
+resource "aws_s3_bucket_website_configuration" "website" {
+  bucket = aws_s3_bucket.website.bucket
 
+  index_document {
+    suffix = var.index_document
+  }
+  error_document {
+    key = ("" == var.error_document) ? var.index_document : var.error_document
+  }
+}
+resource "aws_s3_bucket_cors_configuration" "website" {
+  count =  (var.bucket_cors == true) ? 1 : 0
+  bucket = aws_s3_bucket.website.bucket
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["POST", "GET", "PUT", "DELETE"]
+    allowed_origins = ["*"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
 }
 resource "aws_s3_bucket" "website_redirect_apex" {
   count = var.apex_redirect ? 1 : 0
   bucket = "www.${var.bucket_name}"
-  acl    = "public-read"
-  website {
-    redirect_all_requests_to = "https://${var.dns}"
-  }
   tags = {
     Website = var.name
+  }
+}
+resource "aws_s3_bucket_acl" "website_redirect_apex" {
+  count = var.apex_redirect ? 1 : 0
+  bucket = aws_s3_bucket.website_redirect_apex[0].id
+  acl    = "public-read"
+}
+resource "aws_s3_bucket_website_configuration" "website_redirect_apex" {
+  count  = var.apex_redirect ? 1 : 0
+  bucket = aws_s3_bucket.website_redirect_apex[0].bucket
+
+  redirect_all_requests_to {
+    host_name = var.dns
+    protocol  = "https"
   }
 }
 
@@ -75,12 +95,14 @@ resource "aws_cloudfront_distribution" "website" {
       }
     }
 
-    viewer_protocol_policy = "redirect-to-https"
-    min_ttl                = 0
-    default_ttl            = 3600
-    max_ttl                = 86400
-    compress               = true
-    cache_policy_id        = var.cache_policy_id
+    viewer_protocol_policy     = "redirect-to-https"
+    min_ttl                    = 0
+    default_ttl                = 3600
+    max_ttl                    = 86400
+    compress                   = true
+    cache_policy_id            = var.cache_policy_id
+    origin_request_policy_id   = var.origin_request_policy_id
+    response_headers_policy_id = var.response_headers_policy_id
 
    dynamic "lambda_function_association" {
      for_each = toset(var.lambdas)
@@ -103,6 +125,7 @@ resource "aws_cloudfront_distribution" "website" {
       viewer_protocol_policy   = lookup(ordered_cache_behavior.value, "viewer_protocol_policy", "redirect-to-https")
       origin_request_policy_id = lookup(ordered_cache_behavior.value, "origin_request_policy_id", null)
       cache_policy_id          = lookup(ordered_cache_behavior.value, "cache_policy_id", null)
+      response_headers_policy_id = lookup(ordered_cache_behavior.value, "response_headers_policy_id", null)
     }
   }
 

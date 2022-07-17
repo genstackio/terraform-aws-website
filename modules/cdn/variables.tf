@@ -70,3 +70,22 @@ variable "lambdas" {
   }))
   default = []
 }
+variable "functions" {
+  type = list(object({
+    name = string
+    event_type = string
+    code = string
+  }))
+}
+variable "edge_lambdas" {
+  type = list(object({
+    event_type = string
+    lambda_arn = string
+    include_body = bool
+  }))
+  default = []
+}
+variable "edge_lambdas_variables" {
+  type    = map(string)
+  default = {}
+}
