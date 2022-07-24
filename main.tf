@@ -19,7 +19,7 @@ resource "aws_s3_bucket_website_configuration" "website" {
   }
 }
 resource "aws_s3_bucket_cors_configuration" "website" {
-  count =  (var.bucket_cors == true) ? 1 : 0
+  count  = (var.bucket_cors == true) ? 1 : 0
   bucket = aws_s3_bucket.website.bucket
 
   cors_rule {
@@ -31,14 +31,14 @@ resource "aws_s3_bucket_cors_configuration" "website" {
   }
 }
 resource "aws_s3_bucket" "website_redirect_apex" {
-  count = var.apex_redirect ? 1 : 0
+  count  = var.apex_redirect ? 1 : 0
   bucket = "www.${var.bucket_name}"
   tags = {
     Website = var.name
   }
 }
 resource "aws_s3_bucket_acl" "website_redirect_apex" {
-  count = var.apex_redirect ? 1 : 0
+  count  = var.apex_redirect ? 1 : 0
   bucket = aws_s3_bucket.website_redirect_apex[0].id
   acl    = "public-read"
 }
@@ -54,8 +54,8 @@ resource "aws_s3_bucket_website_configuration" "website_redirect_apex" {
 
 resource "aws_cloudfront_distribution" "website" {
   origin {
-    domain_name         = aws_s3_bucket.website.website_endpoint
-    origin_id           = local.origin_target_id
+    domain_name = aws_s3_bucket.website.website_endpoint
+    origin_id   = local.origin_target_id
     custom_origin_config {
       // These are all the defaults.
       http_port              = "80"
@@ -66,7 +66,7 @@ resource "aws_cloudfront_distribution" "website" {
     dynamic "custom_header" {
       for_each = var.custom_origin_headers
       content {
-        name = custom_header.value.name
+        name  = custom_header.value.name
         value = custom_header.value.value
       }
     }
@@ -85,13 +85,13 @@ resource "aws_cloudfront_distribution" "website" {
     target_origin_id = local.origin_target_id
 
     dynamic "forwarded_values" {
-      for_each = (null != var.cache_policy_id) ? {} : {x: true}
+      for_each = (null != var.cache_policy_id) ? {} : { x : true }
       content {
         query_string = var.forward_query_string
         cookies {
           forward = "none"
         }
-        headers      = var.forwarded_headers
+        headers = var.forwarded_headers
       }
     }
 
@@ -104,27 +104,27 @@ resource "aws_cloudfront_distribution" "website" {
     origin_request_policy_id   = var.origin_request_policy_id
     response_headers_policy_id = var.response_headers_policy_id
 
-   dynamic "lambda_function_association" {
-     for_each = toset(var.lambdas)
-     content {
-       event_type   = lambda_function_association.value.event_type
-       lambda_arn   = lambda_function_association.value.lambda_arn
-       include_body = lambda_function_association.value.include_body
-     }
+    dynamic "lambda_function_association" {
+      for_each = toset(var.lambdas)
+      content {
+        event_type   = lambda_function_association.value.event_type
+        lambda_arn   = lambda_function_association.value.lambda_arn
+        include_body = lambda_function_association.value.include_body
+      }
     }
   }
 
   dynamic "ordered_cache_behavior" {
     for_each = var.custom_behaviors != null ? var.custom_behaviors : []
     content {
-      path_pattern             = ordered_cache_behavior.value["path_pattern"]
-      allowed_methods          = lookup(ordered_cache_behavior.value, "allowed_methods", ["GET", "HEAD"])
-      cached_methods           = lookup(ordered_cache_behavior.value, "cached_methods", ["GET", "HEAD"])
-      target_origin_id         = lookup(ordered_cache_behavior.value, "target_origin_id", local.origin_target_id)
-      compress                 = lookup(ordered_cache_behavior.value, "compress", true)
-      viewer_protocol_policy   = lookup(ordered_cache_behavior.value, "viewer_protocol_policy", "redirect-to-https")
-      origin_request_policy_id = lookup(ordered_cache_behavior.value, "origin_request_policy_id", null)
-      cache_policy_id          = lookup(ordered_cache_behavior.value, "cache_policy_id", null)
+      path_pattern               = ordered_cache_behavior.value["path_pattern"]
+      allowed_methods            = lookup(ordered_cache_behavior.value, "allowed_methods", ["GET", "HEAD"])
+      cached_methods             = lookup(ordered_cache_behavior.value, "cached_methods", ["GET", "HEAD"])
+      target_origin_id           = lookup(ordered_cache_behavior.value, "target_origin_id", local.origin_target_id)
+      compress                   = lookup(ordered_cache_behavior.value, "compress", true)
+      viewer_protocol_policy     = lookup(ordered_cache_behavior.value, "viewer_protocol_policy", "redirect-to-https")
+      origin_request_policy_id   = lookup(ordered_cache_behavior.value, "origin_request_policy_id", null)
+      cache_policy_id            = lookup(ordered_cache_behavior.value, "cache_policy_id", null)
       response_headers_policy_id = lookup(ordered_cache_behavior.value, "response_headers_policy_id", null)
     }
   }
@@ -142,16 +142,16 @@ resource "aws_cloudfront_distribution" "website" {
   }
 
   viewer_certificate {
-    acm_certificate_arn = aws_acm_certificate_validation.cert.certificate_arn
-    ssl_support_method  = "sni-only"
+    acm_certificate_arn      = aws_acm_certificate_validation.cert.certificate_arn
+    ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1"
   }
 
   dynamic "custom_error_response" {
     for_each = toset(("" == var.error_403_page_path) ? [] : [var.error_403_page_path])
     content {
-      error_code    = 403
-      response_code = var.error_403_page_code
+      error_code         = 403
+      response_code      = var.error_403_page_code
       response_page_path = custom_error_response.value
     }
   }
@@ -159,8 +159,8 @@ resource "aws_cloudfront_distribution" "website" {
   dynamic "custom_error_response" {
     for_each = toset(("" == var.error_404_page_path) ? [] : [var.error_404_page_path])
     content {
-      error_code    = 404
-      response_code = var.error_404_page_code
+      error_code         = 404
+      response_code      = var.error_404_page_code
       response_page_path = custom_error_response.value
     }
   }
@@ -168,8 +168,8 @@ resource "aws_cloudfront_distribution" "website" {
 resource "aws_cloudfront_distribution" "website_redirect_apex" {
   count = var.apex_redirect ? 1 : 0
   origin {
-    domain_name         = aws_s3_bucket.website_redirect_apex[count.index].website_endpoint
-    origin_id           = local.origin_target_id
+    domain_name = aws_s3_bucket.website_redirect_apex[count.index].website_endpoint
+    origin_id   = local.origin_target_id
     custom_origin_config {
       // These are all the defaults.
       http_port              = "80"
@@ -179,9 +179,9 @@ resource "aws_cloudfront_distribution" "website_redirect_apex" {
     }
   }
 
-  enabled             = true
-  is_ipv6_enabled     = true
-  comment             = "Website ${var.name} Redirect to Apex Distribution"
+  enabled         = true
+  is_ipv6_enabled = true
+  comment         = "Website ${var.name} Redirect to Apex Distribution"
 
   aliases = ["www.${var.dns}"]
 
@@ -214,8 +214,8 @@ resource "aws_cloudfront_distribution" "website_redirect_apex" {
   }
 
   viewer_certificate {
-    acm_certificate_arn = aws_acm_certificate_validation.cert.certificate_arn
-    ssl_support_method  = "sni-only"
+    acm_certificate_arn      = aws_acm_certificate_validation.cert.certificate_arn
+    ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1"
   }
 }
@@ -232,7 +232,7 @@ resource "aws_route53_record" "website" {
   }
 }
 resource "aws_route53_record" "website_redirect_apex" {
-  count = var.apex_redirect ? 1 : 0
+  count   = var.apex_redirect ? 1 : 0
   zone_id = var.zone
   name    = "www.${var.dns}"
   type    = "A"
@@ -245,9 +245,9 @@ resource "aws_route53_record" "website_redirect_apex" {
 }
 
 resource "aws_acm_certificate" "cert" {
-  domain_name       = var.dns
-  validation_method = "DNS"
-  provider          = aws.acm
+  domain_name               = var.dns
+  validation_method         = "DNS"
+  provider                  = aws.acm
   subject_alternative_names = var.apex_redirect ? [local.www_dns] : null
 
   lifecycle {
@@ -284,7 +284,7 @@ resource "aws_s3_bucket_policy" "website" {
   policy = data.aws_iam_policy_document.s3_website_policy.json
 }
 resource "aws_s3_bucket_policy" "website_redirect_apex" {
-  count = var.apex_redirect ? 1 : 0
+  count  = var.apex_redirect ? 1 : 0
   bucket = aws_s3_bucket.website_redirect_apex[count.index].id
   policy = data.aws_iam_policy_document.s3_website_redirect_apex_policy[count.index].json
 }

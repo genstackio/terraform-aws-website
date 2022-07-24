@@ -1,26 +1,26 @@
 resource "aws_cloudfront_function" "function" {
   for_each = local.functions
-  name    = "${var.name}-${each.key}"
-  runtime = "cloudfront-js-1.0"
-  comment = "${each.key} function"
-  publish = true
-  code    = lookup(each.value, "code", null)
+  name     = "${var.name}-${each.key}"
+  runtime  = "cloudfront-js-1.0"
+  comment  = "${each.key} function"
+  publish  = true
+  code     = lookup(each.value, "code", null)
 }
 
 resource "aws_s3_bucket" "cdn_redirect_apex" {
-  count = (null != local.dns_1) ? 1 : 0
+  count  = (null != local.dns_1) ? 1 : 0
   bucket = local.dns_1
   tags = {
     Website = var.name
   }
 }
 resource "aws_s3_bucket_acl" "cdn_redirect_apex" {
-  count = (null != local.dns_1) ? 1 : 0
+  count  = (null != local.dns_1) ? 1 : 0
   bucket = aws_s3_bucket.cdn_redirect_apex[0].id
   acl    = "public-read"
 }
 resource "aws_s3_bucket_website_configuration" "cdn_redirect_apex" {
-  count = (null != local.dns_1) ? 1 : 0
+  count  = (null != local.dns_1) ? 1 : 0
   bucket = aws_s3_bucket.cdn_redirect_apex[0].bucket
 
   redirect_all_requests_to {
@@ -31,12 +31,12 @@ resource "aws_s3_bucket_website_configuration" "cdn_redirect_apex" {
 
 resource "aws_cloudfront_distribution" "cdn" {
   origin {
-    domain_name         = var.origin
-    origin_id           = "origin-external"
+    domain_name = var.origin
+    origin_id   = "origin-external"
     dynamic "custom_header" {
       for_each = local.custom_headers
       content {
-        name = custom_header.key
+        name  = custom_header.key
         value = custom_header.value
       }
     }
@@ -46,7 +46,7 @@ resource "aws_cloudfront_distribution" "cdn" {
       origin_protocol_policy = "https-only"
       origin_ssl_protocols   = ["TLSv1.2"]
     }
-    dynamic custom_header {
+    dynamic "custom_header" {
       for_each = var.edge_lambdas_variables
       content {
         name  = "x-lambda-var-${replace(lower(custom_header.key), "_", "-")}"
@@ -81,13 +81,13 @@ resource "aws_cloudfront_distribution" "cdn" {
     max_ttl                = 86400
     compress               = true
 
-   dynamic "lambda_function_association" {
-     for_each = toset(var.lambdas)
-     content {
-       event_type   = lambda_function_association.value.event_type
-       lambda_arn   = lambda_function_association.value.lambda_arn
-       include_body = lambda_function_association.value.include_body
-     }
+    dynamic "lambda_function_association" {
+      for_each = toset(var.lambdas)
+      content {
+        event_type   = lambda_function_association.value.event_type
+        lambda_arn   = lambda_function_association.value.lambda_arn
+        include_body = lambda_function_association.value.include_body
+      }
     }
     dynamic "function_association" {
       for_each = local.functions
@@ -121,16 +121,16 @@ resource "aws_cloudfront_distribution" "cdn" {
   }
 
   viewer_certificate {
-    acm_certificate_arn = aws_acm_certificate_validation.cert.certificate_arn
-    ssl_support_method  = "sni-only"
+    acm_certificate_arn      = aws_acm_certificate_validation.cert.certificate_arn
+    ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1"
   }
 
   dynamic "custom_error_response" {
     for_each = toset(("" == var.error_403_page_path) ? [] : [var.error_403_page_path])
     content {
-      error_code    = 403
-      response_code = 200
+      error_code         = 403
+      response_code      = 200
       response_page_path = custom_error_response.value
     }
   }
@@ -138,8 +138,8 @@ resource "aws_cloudfront_distribution" "cdn" {
   dynamic "custom_error_response" {
     for_each = toset(("" == var.error_404_page_path) ? [] : [var.error_404_page_path])
     content {
-      error_code    = 404
-      response_code = 200
+      error_code         = 404
+      response_code      = 200
       response_page_path = custom_error_response.value
     }
   }
@@ -148,8 +148,8 @@ resource "aws_cloudfront_distribution" "cdn" {
 resource "aws_cloudfront_distribution" "cdn_redirect_apex" {
   count = (null != local.dns_1) ? 1 : 0
   origin {
-    domain_name         = aws_s3_bucket.cdn_redirect_apex[0].website_endpoint
-    origin_id           = "origin-s3"
+    domain_name = aws_s3_bucket.cdn_redirect_apex[0].website_endpoint
+    origin_id   = "origin-s3"
     custom_origin_config {
       http_port              = "80"
       https_port             = "443"
@@ -158,9 +158,9 @@ resource "aws_cloudfront_distribution" "cdn_redirect_apex" {
     }
   }
 
-  enabled             = true
-  is_ipv6_enabled     = true
-  comment             = "Website ${var.name} Distribution"
+  enabled         = true
+  is_ipv6_enabled = true
+  comment         = "Website ${var.name} Distribution"
 
   aliases = [local.dns_1]
 
@@ -197,16 +197,16 @@ resource "aws_cloudfront_distribution" "cdn_redirect_apex" {
   }
 
   viewer_certificate {
-    acm_certificate_arn = aws_acm_certificate_validation.cert.certificate_arn
-    ssl_support_method  = "sni-only"
+    acm_certificate_arn      = aws_acm_certificate_validation.cert.certificate_arn
+    ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1"
   }
 
   dynamic "custom_error_response" {
     for_each = toset(("" == var.error_403_page_path) ? [] : [var.error_403_page_path])
     content {
-      error_code    = 403
-      response_code = 200
+      error_code         = 403
+      response_code      = 200
       response_page_path = custom_error_response.value
     }
   }
@@ -214,8 +214,8 @@ resource "aws_cloudfront_distribution" "cdn_redirect_apex" {
   dynamic "custom_error_response" {
     for_each = toset(("" == var.error_404_page_path) ? [] : [var.error_404_page_path])
     content {
-      error_code    = 404
-      response_code = 200
+      error_code         = 404
+      response_code      = 200
       response_page_path = custom_error_response.value
     }
   }
@@ -234,7 +234,7 @@ resource "aws_route53_record" "cdn" {
 }
 
 resource "aws_route53_record" "cdn_redirect_apex" {
-  count = (null != local.dns_1) ? 1 : 0
+  count   = (null != local.dns_1) ? 1 : 0
   zone_id = var.zone
   name    = local.dns_1
   type    = "A"
@@ -247,9 +247,9 @@ resource "aws_route53_record" "cdn_redirect_apex" {
 }
 
 resource "aws_acm_certificate" "cert" {
-  domain_name       = var.dns
-  validation_method = "DNS"
-  provider          = aws.acm
+  domain_name               = var.dns
+  validation_method         = "DNS"
+  provider                  = aws.acm
   subject_alternative_names = (null != local.dns_1) ? [local.dns_1] : null
 
   lifecycle {
@@ -280,7 +280,7 @@ resource "aws_acm_certificate_validation" "cert" {
 }
 
 resource "aws_s3_bucket_policy" "cdn_redirect_apex" {
-  count = var.apex_redirect ? 1 : 0
+  count  = var.apex_redirect ? 1 : 0
   bucket = aws_s3_bucket.cdn_redirect_apex[count.index].id
   policy = data.aws_iam_policy_document.s3_cdn_redirect_apex_policy[count.index].json
 }
