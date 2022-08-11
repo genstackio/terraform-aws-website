@@ -17,7 +17,7 @@ resource "aws_s3_bucket_website_configuration" "website" {
   }
 }
 resource "aws_s3_bucket_cors_configuration" "website" {
-  count =  (var.bucket_cors == true) ? 1 : 0
+  count  = (var.bucket_cors == true) ? 1 : 0
   bucket = aws_s3_bucket.website.bucket
 
   cors_rule {
@@ -29,19 +29,19 @@ resource "aws_s3_bucket_cors_configuration" "website" {
   }
 }
 resource "aws_s3_bucket" "website_1" {
-  count = var.apex_redirect ? 1 : 0
+  count  = var.apex_redirect ? 1 : 0
   bucket = local.bucket_name_1
   tags = {
     Website = var.name
   }
 }
 resource "aws_s3_bucket_acl" "website_1" {
-  count = (null != local.dns_1) ? 1 : 0
+  count  = (null != local.dns_1) ? 1 : 0
   bucket = aws_s3_bucket.website_1[0].id
   acl    = "public-read"
 }
 resource "aws_s3_bucket_website_configuration" "website_1" {
-  count = (null != local.dns_1) ? 1 : 0
+  count  = (null != local.dns_1) ? 1 : 0
   bucket = aws_s3_bucket.website_1[0].bucket
 
   redirect_all_requests_to {
@@ -50,7 +50,7 @@ resource "aws_s3_bucket_website_configuration" "website_1" {
   }
 }
 resource "aws_s3_bucket_cors_configuration" "website_1" {
-  count =  (var.bucket_cors == true) ? 1 : 0
+  count  = (var.bucket_cors == true) ? 1 : 0
   bucket = aws_s3_bucket.website_1.bucket
 
   cors_rule {
@@ -64,8 +64,8 @@ resource "aws_s3_bucket_cors_configuration" "website_1" {
 
 resource "aws_cloudfront_distribution" "website" {
   origin {
-    domain_name         = aws_s3_bucket.website.website_endpoint
-    origin_id           = "website-${var.name}-s3"
+    domain_name = aws_s3_bucket.website.website_endpoint
+    origin_id   = "website-${var.name}-s3"
     custom_origin_config {
       http_port              = "80"
       https_port             = "443"
@@ -74,9 +74,9 @@ resource "aws_cloudfront_distribution" "website" {
     }
   }
 
-  enabled             = true
-  is_ipv6_enabled     = true
-  comment             = "Website ${var.name} Distribution - Redirect to ${var.target}"
+  enabled         = true
+  is_ipv6_enabled = true
+  comment         = "Website ${var.name} Distribution - Redirect to ${var.target}"
 
   aliases = [var.dns]
 
@@ -122,16 +122,16 @@ resource "aws_cloudfront_distribution" "website" {
   }
 
   viewer_certificate {
-    acm_certificate_arn = aws_acm_certificate_validation.cert.certificate_arn
-    ssl_support_method  = "sni-only"
+    acm_certificate_arn      = aws_acm_certificate_validation.cert.certificate_arn
+    ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1"
   }
 
   dynamic "custom_error_response" {
     for_each = toset(("" == var.error_403_page_path) ? [] : [var.error_403_page_path])
     content {
-      error_code    = 403
-      response_code = 200
+      error_code         = 403
+      response_code      = 200
       response_page_path = custom_error_response.value
     }
   }
@@ -139,8 +139,8 @@ resource "aws_cloudfront_distribution" "website" {
   dynamic "custom_error_response" {
     for_each = toset(("" == var.error_404_page_path) ? [] : [var.error_404_page_path])
     content {
-      error_code    = 404
-      response_code = 200
+      error_code         = 404
+      response_code      = 200
       response_page_path = custom_error_response.value
     }
   }
@@ -148,8 +148,8 @@ resource "aws_cloudfront_distribution" "website" {
 resource "aws_cloudfront_distribution" "website_1" {
   count = var.apex_redirect ? 1 : 0
   origin {
-    domain_name         = aws_s3_bucket.website_1[count.index].website_endpoint
-    origin_id           = "website-${var.name}-s3"
+    domain_name = aws_s3_bucket.website_1[count.index].website_endpoint
+    origin_id   = "website-${var.name}-s3"
     custom_origin_config {
       http_port              = "80"
       https_port             = "443"
@@ -158,9 +158,9 @@ resource "aws_cloudfront_distribution" "website_1" {
     }
   }
 
-  enabled             = true
-  is_ipv6_enabled     = true
-  comment             = "Website ${var.name} Redirect to Apex Distribution - Redirect to ${var.target}"
+  enabled         = true
+  is_ipv6_enabled = true
+  comment         = "Website ${var.name} Redirect to Apex Distribution - Redirect to ${var.target}"
 
   aliases = [local.dns_1]
 
@@ -193,8 +193,8 @@ resource "aws_cloudfront_distribution" "website_1" {
   }
 
   viewer_certificate {
-    acm_certificate_arn = aws_acm_certificate_validation.cert.certificate_arn
-    ssl_support_method  = "sni-only"
+    acm_certificate_arn      = aws_acm_certificate_validation.cert.certificate_arn
+    ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1"
   }
 }
@@ -211,7 +211,7 @@ resource "aws_route53_record" "website" {
   }
 }
 resource "aws_route53_record" "website_1" {
-  count = var.apex_redirect ? 1 : 0
+  count   = var.apex_redirect ? 1 : 0
   zone_id = var.zone
   name    = local.dns_1
   type    = "A"
@@ -224,9 +224,9 @@ resource "aws_route53_record" "website_1" {
 }
 
 resource "aws_acm_certificate" "cert" {
-  domain_name       = var.dns
-  validation_method = "DNS"
-  provider          = aws.acm
+  domain_name               = var.dns
+  validation_method         = "DNS"
+  provider                  = aws.acm
   subject_alternative_names = var.apex_redirect ? [local.dns_1] : null
 
   lifecycle {
@@ -261,7 +261,7 @@ resource "aws_s3_bucket_policy" "website" {
   policy = data.aws_iam_policy_document.s3_website_policy.json
 }
 resource "aws_s3_bucket_policy" "website_1" {
-  count = var.apex_redirect ? 1 : 0
+  count  = var.apex_redirect ? 1 : 0
   bucket = aws_s3_bucket.website_1[count.index].id
   policy = data.aws_iam_policy_document.s3_website_redirect_apex_policy[count.index].json
 }

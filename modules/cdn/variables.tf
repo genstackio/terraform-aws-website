@@ -64,23 +64,23 @@ variable "forward_query_string" {
 }
 variable "lambdas" {
   type = list(object({
-    event_type = string
-    lambda_arn = string
+    event_type   = string
+    lambda_arn   = string
     include_body = bool
   }))
   default = []
 }
 variable "functions" {
   type = list(object({
-    name = string
+    name       = string
     event_type = string
-    code = string
+    code       = string
   }))
 }
 variable "edge_lambdas" {
   type = list(object({
-    event_type = string
-    lambda_arn = string
+    event_type   = string
+    lambda_arn   = string
     include_body = bool
   }))
   default = []

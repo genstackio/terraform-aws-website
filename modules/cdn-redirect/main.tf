@@ -17,19 +17,19 @@ resource "aws_s3_bucket_website_configuration" "cdn_redirect" {
   }
 }
 resource "aws_s3_bucket" "cdn_redirect_apex" {
-  count = (null != local.dns_1) ? 1 : 0
+  count  = (null != local.dns_1) ? 1 : 0
   bucket = local.dns_1
   tags = {
     Website = var.name
   }
 }
 resource "aws_s3_bucket_acl" "cdn_redirect_apex" {
-  count = (null != local.dns_1) ? 1 : 0
+  count  = (null != local.dns_1) ? 1 : 0
   bucket = aws_s3_bucket.cdn_redirect_apex[0].id
   acl    = "public-read"
 }
 resource "aws_s3_bucket_website_configuration" "cdn_redirect_apex" {
-  count = (null != local.dns_1) ? 1 : 0
+  count  = (null != local.dns_1) ? 1 : 0
   bucket = aws_s3_bucket.cdn_redirect_apex[0].bucket
 
   redirect_all_requests_to {
@@ -40,8 +40,8 @@ resource "aws_s3_bucket_website_configuration" "cdn_redirect_apex" {
 
 resource "aws_cloudfront_distribution" "cdn" {
   origin {
-    domain_name         = aws_s3_bucket.cdn_redirect.website_endpoint
-    origin_id           = "origin-s3"
+    domain_name = aws_s3_bucket.cdn_redirect.website_endpoint
+    origin_id   = "origin-s3"
     custom_origin_config {
       http_port              = "80"
       https_port             = "443"
@@ -50,9 +50,9 @@ resource "aws_cloudfront_distribution" "cdn" {
     }
   }
 
-  enabled             = true
-  is_ipv6_enabled     = true
-  comment             = "Website ${var.name} Distribution"
+  enabled         = true
+  is_ipv6_enabled = true
+  comment         = "Website ${var.name} Distribution"
 
   aliases = [local.dns_0]
 
@@ -98,8 +98,8 @@ resource "aws_cloudfront_distribution" "cdn" {
   }
 
   viewer_certificate {
-    acm_certificate_arn = aws_acm_certificate_validation.cert.certificate_arn
-    ssl_support_method  = "sni-only"
+    acm_certificate_arn      = aws_acm_certificate_validation.cert.certificate_arn
+    ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1"
   }
 
@@ -108,8 +108,8 @@ resource "aws_cloudfront_distribution" "cdn" {
 resource "aws_cloudfront_distribution" "cdn_redirect_apex" {
   count = (null != local.dns_1) ? 1 : 0
   origin {
-    domain_name         = aws_s3_bucket.cdn_redirect_apex[0].website_endpoint
-    origin_id           = "origin-s3"
+    domain_name = aws_s3_bucket.cdn_redirect_apex[0].website_endpoint
+    origin_id   = "origin-s3"
     custom_origin_config {
       http_port              = "80"
       https_port             = "443"
@@ -118,9 +118,9 @@ resource "aws_cloudfront_distribution" "cdn_redirect_apex" {
     }
   }
 
-  enabled             = true
-  is_ipv6_enabled     = true
-  comment             = "Website ${var.name} Distribution"
+  enabled         = true
+  is_ipv6_enabled = true
+  comment         = "Website ${var.name} Distribution"
 
   aliases = [local.dns_1]
 
@@ -166,8 +166,8 @@ resource "aws_cloudfront_distribution" "cdn_redirect_apex" {
   }
 
   viewer_certificate {
-    acm_certificate_arn = aws_acm_certificate_validation.cert.certificate_arn
-    ssl_support_method  = "sni-only"
+    acm_certificate_arn      = aws_acm_certificate_validation.cert.certificate_arn
+    ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1"
   }
 
@@ -186,7 +186,7 @@ resource "aws_route53_record" "cdn" {
 }
 
 resource "aws_route53_record" "cdn_redirect_apex" {
-  count = (null != local.dns_1) ? 1 : 0
+  count   = (null != local.dns_1) ? 1 : 0
   zone_id = var.zone
   name    = local.dns_1
   type    = "A"
@@ -199,9 +199,9 @@ resource "aws_route53_record" "cdn_redirect_apex" {
 }
 
 resource "aws_acm_certificate" "cert" {
-  domain_name       = var.dns
-  validation_method = "DNS"
-  provider          = aws.acm
+  domain_name               = var.dns
+  validation_method         = "DNS"
+  provider                  = aws.acm
   subject_alternative_names = (null != local.dns_1) ? [local.dns_1] : null
 
   lifecycle {
@@ -236,7 +236,7 @@ resource "aws_s3_bucket_policy" "cdn_redirect" {
   policy = data.aws_iam_policy_document.s3_cdn_redirect_policy.json
 }
 resource "aws_s3_bucket_policy" "cdn_redirect_apex" {
-  count = var.apex_redirect ? 1 : 0
+  count  = var.apex_redirect ? 1 : 0
   bucket = aws_s3_bucket.cdn_redirect_apex[count.index].id
   policy = data.aws_iam_policy_document.s3_cdn_redirect_apex_policy[count.index].json
 }

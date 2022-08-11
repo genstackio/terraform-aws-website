@@ -2,7 +2,7 @@ variable "name" {
   type = string
 }
 variable "config_file" {
-  type = string
+  type    = string
   default = ""
 }
 variable "runtime" {
