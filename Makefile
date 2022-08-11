@@ -6,6 +6,9 @@ all: install
 build-modules: install-root
 	@$(foreach m,$(makeable_modules),make -C modules/$(m)/ build;)
 
+format:
+	@terraform fmt -recursive
+
 generate:
 	@yarn --silent genjs
 
