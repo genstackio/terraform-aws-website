@@ -8,6 +8,14 @@ resource "aws_s3_bucket_acl" "website" {
   bucket = aws_s3_bucket.website.id
   acl    = "public-read"
 }
+resource "aws_s3_bucket_public_access_block" "website" {
+  bucket = aws_s3_bucket.website.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
 resource "aws_s3_bucket_website_configuration" "website" {
   bucket = aws_s3_bucket.website.bucket
 
@@ -36,6 +44,15 @@ resource "aws_s3_bucket" "website_redirect_apex" {
   tags = {
     Website = var.name
   }
+}
+resource "aws_s3_bucket_public_access_block" "website_redirect_apex" {
+  count  = var.apex_redirect ? 1 : 0
+  bucket = aws_s3_bucket.website_redirect_apex[0].id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
 }
 resource "aws_s3_bucket_acl" "website_redirect_apex" {
   count  = var.apex_redirect ? 1 : 0
