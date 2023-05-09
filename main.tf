@@ -7,6 +7,10 @@ resource "aws_s3_bucket" "website" {
 resource "aws_s3_bucket_acl" "website" {
   bucket = aws_s3_bucket.website.id
   acl    = "public-read"
+  depends_on = [
+    aws_s3_bucket_ownership_controls.website,
+    aws_s3_bucket_public_access_block.website,
+  ]
 }
 resource "aws_s3_bucket_public_access_block" "website" {
   bucket = aws_s3_bucket.website.id
@@ -57,6 +61,10 @@ resource "aws_s3_bucket_acl" "website_redirect_apex" {
   count  = var.apex_redirect ? 1 : 0
   bucket = aws_s3_bucket.website_redirect_apex[0].id
   acl    = "public-read"
+  depends_on = [
+    aws_s3_bucket_ownership_controls.website_redirect_apex[0],
+    aws_s3_bucket_public_access_block.website_redirect_apex[0],
+  ]
 }
 resource "aws_s3_bucket_public_access_block" "website_redirect_apex" {
   count  = var.apex_redirect ? 1 : 0
