@@ -69,7 +69,7 @@ resource "aws_s3_bucket_public_access_block" "website_redirect_apex" {
 }
 resource "aws_s3_bucket_ownership_controls" "website_redirect_apex" {
   count  = var.apex_redirect ? 1 : 0
-  bucket = aws_s3_bucket.website_redirect_apex.id
+  bucket = aws_s3_bucket.website_redirect_apex[0].id
   rule {
     object_ownership = "BucketOwnerPreferred"
   }
