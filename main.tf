@@ -323,9 +323,17 @@ resource "aws_acm_certificate_validation" "cert" {
 resource "aws_s3_bucket_policy" "website" {
   bucket = aws_s3_bucket.website.id
   policy = data.aws_iam_policy_document.s3_website_policy.json
+  depends_on = [
+    aws_s3_bucket_ownership_controls.website,
+    aws_s3_bucket_public_access_block.website,
+  ]
 }
 resource "aws_s3_bucket_policy" "website_redirect_apex" {
   count  = var.apex_redirect ? 1 : 0
   bucket = aws_s3_bucket.website_redirect_apex[count.index].id
   policy = data.aws_iam_policy_document.s3_website_redirect_apex_policy[count.index].json
+  depends_on = [
+    aws_s3_bucket_ownership_controls.website_redirect_apex[0],
+    aws_s3_bucket_public_access_block.website_redirect_apex[0],
+  ]
 }
