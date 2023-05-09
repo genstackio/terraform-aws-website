@@ -22,6 +22,7 @@ resource "aws_s3_bucket_ownership_controls" "website" {
     object_ownership = "BucketOwnerPreferred"
   }
 }
+
 resource "aws_s3_bucket_website_configuration" "website" {
   bucket = aws_s3_bucket.website.bucket
 
@@ -44,6 +45,7 @@ resource "aws_s3_bucket_cors_configuration" "website" {
     max_age_seconds = 3000
   }
 }
+
 resource "aws_s3_bucket" "website_redirect_apex" {
   count  = var.apex_redirect ? 1 : 0
   bucket = "www.${var.bucket_name}"
@@ -72,6 +74,7 @@ resource "aws_s3_bucket_ownership_controls" "website_redirect_apex" {
     object_ownership = "BucketOwnerPreferred"
   }
 }
+
 resource "aws_s3_bucket_website_configuration" "website_redirect_apex" {
   count  = var.apex_redirect ? 1 : 0
   bucket = aws_s3_bucket.website_redirect_apex[0].bucket
