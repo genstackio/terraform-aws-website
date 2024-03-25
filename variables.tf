@@ -99,3 +99,10 @@ variable "can_overwrite" {
   default     = false
   description = "Allow overwriting route53 records for pre-existing CNAME/certificates"
 }
+variable "functions" {
+  type = list(object({
+    event_type   = string
+    function_arn = string
+  }))
+  default = []
+}

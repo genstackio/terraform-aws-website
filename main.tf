@@ -153,6 +153,13 @@ resource "aws_cloudfront_distribution" "website" {
         include_body = lambda_function_association.value.include_body
       }
     }
+    dynamic "function_association" {
+      for_each = { for i, l in var.functions : "function-${i}" => l }
+      content {
+        event_type   = function_association.value.event_type
+        function_arn = function_association.value.function_arn
+      }
+    }
   }
 
   dynamic "ordered_cache_behavior" {
