@@ -95,7 +95,7 @@ resource "aws_s3_bucket_website_configuration" "website_redirect_apex" {
 
 resource "aws_cloudfront_distribution" "website" {
   origin {
-    domain_name = aws_s3_bucket.website.website_endpoint
+    domain_name = aws_s3_bucket_website_configuration.website.website_endpoint
     origin_id   = local.origin_target_id
     custom_origin_config {
       // These are all the defaults.
@@ -216,7 +216,7 @@ resource "aws_cloudfront_distribution" "website" {
 resource "aws_cloudfront_distribution" "website_redirect_apex" {
   count = var.apex_redirect ? 1 : 0
   origin {
-    domain_name = aws_s3_bucket.website_redirect_apex[count.index].website_endpoint
+    domain_name = aws_s3_bucket_website_configuration.website_redirect_apex[count.index].website_endpoint
     origin_id   = local.origin_target_id
     custom_origin_config {
       // These are all the defaults.
