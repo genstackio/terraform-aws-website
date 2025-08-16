@@ -1,6 +1,6 @@
 module "lambda" {
   source                  = "genstackio/lambda/aws"
-  version                 = "0.1.8"
+  version                 = "0.6.2"
   name                    = var.name
   file                    = data.archive_file.lambda-code.output_path
   runtime                 = var.runtime
